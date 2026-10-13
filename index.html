@@ -1,0 +1,697 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+<!-- ДВА НАЗВАНИЯ: игровое + SEO-заголовок с темой, возрастом и «подготовка к школе» -->
+<title>Транспорт и профессии — игра для детей 5 лет | Подготовка к школе с Яшей</title>
+<meta name="description" content="Бесплатная игра для детей 5 лет: транспорт и профессии — кто управляет, кто на чём ездит, найди все велосипеды и самолёты. Подготовка к школе с папильоном Яшей.">
+<style>
+
+  :root{ --green:#2E7D32; --ink:#1a1a1a; --paper:#FAF6EC; --line:#e0dccf; --card:#fff;
+         --red:#D32F2F; --blue:#0D3C8F; }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+  html,body{margin:0;height:100%;background:var(--paper);color:var(--ink);
+            font-family:"Segoe UI",Arial,sans-serif}
+  img{object-fit:contain;display:block}
+  h1{font-size:clamp(30px,7vw,50px);color:var(--green);text-align:center;line-height:1.15;margin:6px 0}
+  h2{font-size:clamp(32px,7.5vw,52px);color:var(--green);text-align:center;line-height:1.15;margin:6px 0}
+  p{font-size:clamp(26px,6vw,38px);line-height:1.3;margin:6px 0;text-align:center}
+  .sub{font-size:clamp(24px,5.4vw,34px);color:var(--ink);text-align:center;margin:4px 0 8px}
+  .sub.green{color:var(--green);font-weight:700}
+  .top{width:100%;display:flex;justify-content:space-between;align-items:center;
+       font-size:clamp(17px,3.8vw,24px);color:var(--green);font-weight:400}
+  .counter{font-size:clamp(17px,3.8vw,24px);color:var(--green);font-weight:400}
+  .wrap{position:relative;min-height:100%;display:flex;flex-direction:column;max-width:760px;margin:0 auto}
+  .screen{display:none;flex-direction:column;align-items:center;gap:8px;min-height:100vh;padding:10px 12px 130px}
+  .screen.on{display:flex}
+  .row{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+  .btn{font-size:clamp(17px,3.8vw,24px);min-height:56px;padding:10px 18px;border-radius:14px;
+       border:2px solid var(--green);background:#fff;color:var(--green);font-weight:700;
+       cursor:pointer;touch-action:manipulation;font-family:inherit}
+  .btn.main{background:var(--green);color:#fff}
+  .vowel{color:var(--red) !important}
+  .cons{color:var(--blue) !important}
+  .feedback{font-size:clamp(28px,5.8vw,40px);font-weight:700;color:var(--ink);text-align:center;min-height:1.2em}
+  .video{width:100%;max-width:640px;margin:0 auto;max-height:72vh;border-radius:14px;background:#000}
+  .logo{max-width:min(58vw,320px);max-height:26vh;border-radius:22px;border:4px solid #fff;
+        box-shadow:0 6px 26px rgba(0,0,0,.18)}
+  .foot{position:fixed;left:0;right:0;bottom:0;max-width:760px;margin:0 auto;
+        padding:10px 12px calc(16px + env(safe-area-inset-bottom));
+        background:linear-gradient(180deg,rgba(250,246,236,0) 0%,var(--paper) 45%);display:flex;gap:12px;
+        justify-content:center;z-index:2147483000}
+  .shake{animation:sh .45s}
+  @keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+  .hint{font-size:clamp(22px,5vw,32px);color:var(--green);font-weight:700;text-align:center;min-height:1.2em}
+
+  /* ── игра 1 «кто управляет» и игра 2 «кто на чём ездит»: картинка + 3 кнопки-ответа ── */
+  .taskpic img{max-height:24vh;max-width:86%;border-radius:14px}
+  #q1Q,#q2Q{color:var(--green);font-weight:700}
+  #s3 .feedback{color:var(--green)}
+  .optrow{display:flex;gap:10px;justify-content:center;width:100%;max-width:640px}
+  .optbtn{flex:1 1 0;min-width:0;background:#fff;border:2px solid #cfcfcf;border-radius:16px;
+          padding:8px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;
+          cursor:pointer;touch-action:manipulation}
+  .optbtn img{max-height:17vh;max-width:96%;border-radius:10px}
+  .optbtn .word{font-size:clamp(16px,3.8vw,22px);font-weight:700;text-align:center;line-height:1.15;color:var(--ink)}
+  .optbtn.done{border-color:var(--green);background:#EAF3E6;box-shadow:0 0 0 2px var(--green) inset}
+
+  /* ── игра 3: поле 4×4, нажимаем нужный транспорт ──
+     Панель Hermes и ПК — крупная сетка; на телефоне (палец) — ограничение
+     по высоте, чтобы всё поле было видно над кнопкой «Дальше». */
+  #gridBox{display:grid;grid-template-columns:repeat(var(--n,4),1fr);gap:4px;width:100%;
+           max-width:344px;max-width:min(88vw,640px);margin:6px auto}
+  @media (pointer:coarse){ #gridBox{max-width:344px;max-width:min(calc(100vh - 300px),88vw)} }
+  @media (min-width:601px){ #gridBox{max-width:640px;max-width:min(640px,calc(100vh - 280px))} }
+  .cell{background:#fff;border:2px solid #cfc8b6;border-radius:10px;aspect-ratio:1/1;display:flex;
+        align-items:center;justify-content:center;padding:3%;cursor:pointer;transition:.15s}
+  .cell img{width:100%;height:100%;object-fit:contain}
+  .cell.done{border-color:var(--green);background:#EAF3E6;box-shadow:0 0 0 2px var(--green) inset}
+  .think{max-height:14vh;border-radius:12px;display:block;margin:3px auto}
+  #s3{justify-content:center}
+
+  /* ── награда: весёлый герой после верного ответа и в конце задания ── */
+  .heroReward{display:flex;align-items:center;gap:10px;background:#fff;border:2px solid var(--green);
+              border-radius:16px;padding:6px 12px;max-width:560px;animation:pop .4s}
+  .heroReward img{max-height:28vh;border-radius:14px}
+  .heroReward .hrtext{font-size:clamp(20px,4.8vw,28px);font-weight:800;color:var(--green)}
+  @keyframes pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+
+  .stars{font-size:52px;text-align:center;margin:0}
+  .momcard{background:#fff;border:2px solid var(--line);border-radius:14px;padding:10px 14px;max-width:620px}
+  .momcard p{font-size:clamp(18px,4vw,26px) !important;margin:0 0 4px}
+  .momcard p:last-child{margin:0}
+  #s0{justify-content:center}
+  #s0 .logo{max-height:24vh;max-width:min(72vw,430px)}
+  #s0 .video{max-height:48vh}
+  @media (max-height:800px){ #s0 .logo{max-height:16vh} }
+  #s4{justify-content:center}
+  #s4 .video{max-height:56vh}
+
+  /* ── ПК/панель: потолки размеров в пикселях, чтобы ничего не раздувалось ── */
+  @media (min-width:601px){
+    .taskpic img{max-height:190px}
+    .optbtn img{max-height:130px}
+    .heroReward img{max-height:190px}
+    .video{max-height:380px}
+    .logo{max-height:180px;max-width:300px}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ═══════════════ ЭКРАН 1. ТИТУЛ ═══════════════
+       Логотип → название → подзаголовок → видео «Начало» → кнопка «▶ Играть». -->
+  <section class="screen" id="s0">
+    <video class="logo" id="vidlogo" src="video/logo_yasha.mp4" poster="images/poster_logo.jpg"
+           autoplay muted loop playsinline preload="metadata"></video>
+    <h1>ПРОФЕССИИ НА ТРАНСПОРТЕ</h1>
+    <p class="sub green">Приключение с Яшей и Баловашкой: город профессий!</p>
+    <video class="video" id="vidnach" src="video/nachalo.mp4" poster="images/poster_nachalo.jpg"
+           playsinline preload="metadata" data-act="vidPlay(el)"></video>
+    <button class="btn main" data-act="playStart()">▶ Играть</button>
+  </section>
+
+  <!-- ═══════════════ ЗАДАНИЕ 1. КТО УПРАВЛЯЕТ ═══════════════
+       Сверху транспорт — внизу три профессии. Вопрос: «Кто ведёт автобус?» -->
+  <section class="screen" id="s1">
+    <div class="top"><span>Задание 1 из 3</span><span class="counter" id="cntQ1"></span></div>
+    <p class="sub green">Кто управляет?</p>
+    <div class="taskpic" id="q1Pic"></div>
+    <p id="q1Q"></p>
+    <div class="optrow" id="q1Opts"></div>
+    <div class="feedback" id="fb1"></div>
+    <div class="hint" id="hint1"></div>
+  </section>
+
+  <!-- ═══════════════ ЗАДАНИЕ 2. КТО НА ЧЁМ ЕЗДИТ ═══════════════
+       Сверху профессия — внизу три транспорта, верный один. -->
+  <section class="screen" id="s2">
+    <div class="top"><span>Задание 2 из 3</span><span class="counter" id="cntQ2"></span></div>
+    <p class="sub green">Кто на чём ездит?</p>
+    <div class="taskpic" id="q2Pic"></div>
+    <p id="q2Q"></p>
+    <div class="optrow" id="q2Opts"></div>
+    <div class="feedback" id="fb2"></div>
+    <div class="hint" id="hint2"></div>
+  </section>
+
+  <!-- ═══════════════ ЗАДАНИЕ 3. ПОЛЕ 4×4 ═══════════════
+       Сначала нажимаем все велосипеды, потом все самолёты. -->
+  <section class="screen" id="s3">
+    <div class="top"><span>Задание 3 из 3</span><span class="counter" id="cntFind"></span></div>
+    <p class="sub green" id="gridSub">Нажми на все велосипеды!</p>
+    <div id="gridBox"></div>
+    <div class="feedback" id="fb3"></div>
+  </section>
+
+  <!-- ═══════════════ ФИНАЛ ═══════════════
+       ⭐ → видео-итог со звёздочкой → «Маме 💛» → «Пройти заново». -->
+  <section class="screen" id="s4">
+    <div class="stars">⭐</div>
+    <video class="video" id="viditog" src="video/itog.mp4" poster="images/poster_itog.jpg"
+           playsinline preload="none" data-act="vidPlay(el)"></video>
+    <div class="momcard">
+      <p>Маме 💛</p>
+      <p>Найдите транспорт на улице и спросите малыша, кто им управляет: водитель, пилот, машинист или капитан. Похвалите за старание.</p>
+    </div>
+    <button class="btn main" data-act="restart()">Пройти заново</button>
+  </section>
+
+</div>
+<div class="foot" id="foot"></div>
+
+<script>
+/* ════════════════════════════════════════════════════════════════════
+   ЗАНЯТИЕ «ПРОФЕССИИ НА ТРАНСПОРТЕ» — 5 ЛЕТ
+   Порядок: s0 титул → s1 кто управляет → s2 кто на чём ездит → s3 поле 4×4 → s4 финал
+   ════════════════════════════════════════════════════════════════════ */
+
+/* ═══ ОЗВУЧКА (записано Наташей 12.10): v01 название, v02–v07 игра 1 (вопрос/ответ),
+   v08–v13 игра 2 (вопрос/ответ), v14–v16 игра 3 (задания этапов) ═══ */
+var SCREEN_SAY = { s0:'v01' };
+
+/* переходы между экранами */
+var NEXT = { s0:'s1', s1:'s2', s2:'s3', s3:'s4' };
+var VIDEO_SHOW = { s4:'viditog' };   /* видео играет при входе на свой экран */
+
+/* ═══ ИГРА 1 — кто управляет: сверху транспорт, внизу 3 профессии ═══ */
+var Q1 = [
+  { i:'avtobus.jpg',        q:'Кто ведёт автобус?',        a:0, qa:'v02', ok:'v05' },
+  { i:'samolyot_letit.jpg', q:'Кто управляет самолётом?', a:1, qa:'v03', ok:'v06' },
+  { i:'poezd.jpg',          q:'Кто ведёт поезд?',          a:2, qa:'v04', ok:'v07' }
+];
+var Q1_OPTS = [
+  { i:'voditel_avtobus.jpg', t:'Водитель'  },
+  { i:'pilot.jpg',           t:'Пилот'     },
+  { i:'mashinist.jpg',       t:'Машинист'  }
+];
+
+/* ═══ ИГРА 2 — кто на чём ездит: сверху профессия, внизу 3 транспорта ═══ */
+var Q2 = [
+  { p:'voditel.jpg',  q:'На чём ездит водитель?',
+    opts:[{ i:'taksi.jpg',     t:'Машина'   },
+          { i:'velosiped.jpg', t:'Велосипед'},
+          { i:'vertolyot.jpg', t:'Вертолёт' }],
+    a:'taksi.jpg', qa:'v08', ok:'v09' },
+  { p:'pilot.jpg',    q:'На чём летает пилот?',
+    opts:[{ i:'samolyot_letit.jpg', t:'Самолёт' },
+          { i:'yahta.jpg',          t:'Яхта'    },
+          { i:'tramvay.jpg',        t:'Трамвай' }],
+    a:'samolyot_letit.jpg', qa:'v10', ok:'v11' },
+  { p:'kapitan.jpg',  q:'На чём плавает капитан?',
+    opts:[{ i:'korabl.jpg',  t:'Корабль' },
+          { i:'samokat.jpg', t:'Самокат' },
+          { i:'avtobus.jpg', t:'Автобус' }],
+    a:'korabl.jpg', qa:'v12', ok:'v13' }
+];
+
+/* ═══ ИГРА 3 — поле 4×4: сначала все велосипеды, потом все самолёты ═══ */
+var G_PHASES = [
+  { name:'велосипеды', sub:'Нажми на все велосипеды!', say:'v14',
+    targets:['velosiped.jpg','velosiped_kr.jpg','velik1.jpg','velik_kr.jpg','velik_kra.jpg','velik_cherny.jpg'],
+    need:6,
+    pool:['avto2.jpg','mashina.jpg','taksi.jpg','gruzovik.jpg','samokat.jpg','skuter.jpg',
+          'tramvay.jpg','trolleybus.jpg','avto_bel.jpg','avto_krasn.jpg','avto_ryzh.jpg','avto_ser.jpg',
+          'mashina_edet.jpg'] },
+  { name:'самолёты', sub:'А теперь на все самолёты нажми!', say:'v15',
+    targets:['samolyot.jpg','samolyot_nebo.jpg','samolyot_vint.jpg','samolyot_letit.jpg'],
+    need:6,
+    pool:['avto2.jpg','mashina.jpg','taksi.jpg','gruzovik.jpg','samokat.jpg','skuter.jpg',
+          'tramvay.jpg','trolleybus.jpg','avto_bel.jpg','avto_krasn.jpg','avto_ryzh.jpg','avto_ser.jpg',
+          'velosiped.jpg','velosiped_kr.jpg','velik1.jpg','velik_cherny.jpg'] },
+  { name:'лодки', sub:'Найди все лодки!', say:'v16',
+    targets:['lodka.jpg','lodka2.jpg','lodka3.jpg','lodka4.jpg','lodka5.jpg'],
+    need:6,
+    pool:['avto2.jpg','mashina.jpg','taksi.jpg','gruzovik.jpg','samokat.jpg','skuter.jpg',
+          'tramvay.jpg','trolleybus.jpg','avto_bel.jpg','avto_krasn.jpg','avto_ryzh.jpg','avto_ser.jpg',
+          'velosiped.jpg','velosiped_kr.jpg','velik1.jpg','velik_cherny.jpg',
+          'samolyot.jpg','samolyot_nebo.jpg','samolyot_vint.jpg','samolyot_letit.jpg'] }
+];
+var G_N = 4;
+
+/* ═══════════════════════════════ КОД ДАЛЬШЕ НЕ ТРОГАЕМ ═══════════════════════════════ */
+
+var PRAISE = ['genialno','tochno2','p_molodec','p_da','p_konechno','p_soglasna','p_aga','p_verno','p_ty_prav','p_konechno2'];
+var VOICE = ['v01','v02','v03','v04','v05','v06','v07','v08','v09','v10','v11','v12','v13','v14','v15','v16'];
+var HAVE = PRAISE.concat(['ne_tochno','nothing','star3'], VOICE);
+var HAS_IMG = {};
+function loadImgList(list){ list.forEach(function(f){ HAS_IMG[f]=1; }); }
+function picture(src, cls){
+  if(HAS_IMG[src]) return '<img src="' + 'images/' + src + '" class="'+(cls||'')+'" alt="">';
+  return '';
+}
+function q(id){ return document.getElementById(id); }
+function shuffle(a){
+  a = a.slice();
+  for(var i = a.length-1; i > 0; i--){ var j = Math.floor(Math.random()*(i+1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
+  return a;
+}
+var VOW = 'АЕЁИОУЫЭЮЯ';
+function paint(s){
+  return String(s).split('').map(function(ch){
+    if(VOW.indexOf(ch.toUpperCase()) > -1) return '<span class="vowel">'+ch+'</span>';
+    if(/[А-Яа-яЁё]/.test(ch)) return '<span class="cons">'+ch+'</span>';
+    return ch;
+  }).join('');
+}
+var current = null, lastPraise = '', unlocked = false, fading = null, startGen = 0, sayGen = 0, curAudio = null;
+/* звук не обрываем резко: мягкое затухание ~200 мс (как в занятии «Транспорт») */
+function fadeStop(a, ms, done){
+  if(!a || a.paused || a.ended){ if(done) done(); return; }
+  fading = a;
+  var v0 = 1; try{ v0 = a.volume || 1; }catch(e){}
+  var steps = 8, i = 0;
+  var iv = setInterval(function(){
+    i++;
+    try{ a.volume = Math.max(0, v0 * (1 - i / steps)); }catch(e){}
+    if(i >= steps){
+      clearInterval(iv);
+      try{ a.pause(); a.volume = 1; }catch(e){}
+      if(fading === a) fading = null;
+      if(done) done();
+    }
+  }, Math.max(25, Math.round(ms / steps)));
+}
+function hush(){
+  startGen++; sayGen++;                   /* всё «ожидающее» отменяется при смене экрана */
+  fadeStop(current, 200); current = null;
+  /* смена экрана — прошлый ролик замолкает сразу, поверх нового не звучит.
+     Тихое видео-логотип (muted) не трогаем. */
+  [].forEach.call(document.querySelectorAll('video'), function(v){
+    if(!v.muted){ try{ v.pause(); }catch(e){} }
+  });
+}
+function busySound(){
+  if(current && !current.paused && !current.ended) return current;
+  if(fading && !fading.paused && !fading.ended) return fading;
+  return null;
+}
+/* длительности звуков (сек) — для гарантированного продвижения раундов,
+   даже если браузер телефона не пришлёт ended/loadedmetadata */
+var V_DUR = { genialno:1.94, ne_tochno:1.86, nothing:0.15, p_aga:1.66, p_da:1.66,
+  p_konechno:1.85, p_konechno2:2.13, p_molodec:1.67, p_soglasna:2.13, p_ty_prav:2.30,
+  p_verno:2.39, star3:3.15, tochno2:1.66,
+  v01:2.99, v02:3.67, v03:3.33, v04:3.33, v05:4.52, v06:4.44, v07:3.75, v08:2.90,
+  v09:3.33, v10:2.65, v11:4.01, v12:3.58, v13:3.41, v14:4.61, v15:3.58, v16:3.07 };
+function play(key, onend, waitBusy){
+  if(HAVE.indexOf(key) < 0){ if(onend) setTimeout(onend, 600); return; }
+  var gen = ++startGen;                  /* новейший звук побеждает: старые «ждуны» не стартуют */
+  var fired = false;
+  function fire(){
+    if(fired) return; fired = true;
+    if(gen === startGen && onend) onend();
+  }
+  var start = function(){
+    if(gen !== startGen) return;         /* нас перекрыли — не накладываемся */
+    try{
+      if(!curAudio){
+        curAudio = new Audio();          /* ОДИН элемент на все фразы: телефоны (iOS/WebView)
+                                            надёжно играют уже разблокированный элемент */
+        curAudio.preload = 'auto';
+      }
+      var a = curAudio;
+      a.onended = function(){ if(gen === startGen) fire(); };
+      a.src = 'sounds/' + key + '.mp3';
+      current = a;
+      var p = a.play();
+      if(p && p.catch) p.catch(function(){ if(gen === startGen) fire(); });
+    }catch(e){ if(gen === startGen) fire(); }
+    /* страховка: раунд продвинется по известной длительности файла,
+       даже если ended не придёт (мобильные браузеры) */
+    setTimeout(function(){ if(gen === startGen) fire(); }, ((V_DUR[key] || 2.5) + 0.6) * 1000);
+  };
+  var a = busySound();
+  if(!a){ start(); return; }
+  if(waitBusy){                          /* не обрываем текущую фразу — ждём её конца */
+    var wt = 0;
+    (function wait(){
+      if(gen !== startGen) return;
+      var b = busySound();
+      if(b && wt < 150){ wt++; setTimeout(wait, 100); return; }
+      if(gen !== startGen) return;
+      start();
+    })();
+    return;
+  }
+  if(a === current){ current = null; fadeStop(a, 200, start); return; }
+  var tries = 0;                         /* ждём мягкое затухание, но стартуем только «последним» */
+  (function waitFade(){
+    if(gen !== startGen) return;
+    var b = busySound();
+    if(b && tries < 80){ tries++; setTimeout(waitFade, 50); return; }
+    start();
+  })();
+}
+/* фраза стартует после задержки и ждёт, пока договорит текущий звук (не обрываем похвалу) */
+function sayQ(key, delay){
+  delay = (typeof delay === 'number') ? delay : 500;
+  var gen = ++sayGen;                    /* новая задача/раунд отменяет прошлую ожидающую фразу */
+  var tries = 0;
+  function att(){
+    if(gen !== sayGen) return;           /* фраза устарела (уже другая задача) — молчим */
+    var busy = busySound();
+    if(busy && tries < 7){ tries++; setTimeout(att, 350); return; }
+    if(gen !== sayGen) return;
+    if(busy && tries >= 7){              /* звук «завис» (мобильные): глушим и всё равно спрашиваем */
+      try{ busy.pause(); }catch(e){}
+      current = null; fading = null;
+    }
+    play(key);
+  }
+  setTimeout(att, delay);
+}
+function praise(onend){
+  var pool = PRAISE.filter(function(x){ return x !== lastPraise; });
+  var pick = pool[Math.floor(Math.random()*pool.length)];
+  lastPraise = pick; play(pick, onend);
+}
+function playVideo(id){
+  var v = q(id); if(!v) return;
+  try{ v.currentTime = 0; v.muted = false; v.play().catch(function(){ v.muted = true; v.play().catch(function(){}); }); }catch(e){}
+}
+function vidPlay(el){
+  var v = el;
+  try{ if(v.paused){ v.muted = false; v.play().catch(function(){ v.muted = true; v.play().catch(function(){}); }); }
+       else { v.pause(); } }catch(e){}
+}
+/* фоновая предзагрузка роликов: к приходу на экран видео уже готово (чек-лист) */
+function prefV(id){
+  var v = q(id); if(!v) return;
+  try{ if(!v.dataset.pf){ v.dataset.pf = '1'; v.preload = 'auto'; v.load(); } }catch(e){}
+}
+var PREF_VID = { s2:'viditog', s3:'viditog' };
+/* кнопка внизу: «Дальше ➡» появляется только после выполненного задания */
+function footNext(id, text){
+  var old = q('foot').querySelector('[data-act^="go("]');
+  if(old) old.remove();
+  var b = document.createElement('button');
+  b.className = 'btn main'; b.setAttribute('data-act','go("'+id+'")'); b.textContent = text || 'Дальше ➡';
+  q('foot').appendChild(b);
+}
+/* страховка: после 3 ошибок в задании появляется «Пропустить ➡» */
+function giveSkip(id){
+  if(q('skip_'+id)) return;
+  var b = document.createElement('button');
+  b.className = 'btn'; b.id = 'skip_'+id;
+  b.setAttribute('data-act','go("'+NEXT[id]+'")'); b.textContent = 'Пропустить ➡';
+  q('foot').appendChild(b);
+}
+/* весёлый герой после верного ответа и в конце задания */
+var REW = {
+  s1: { i:'balovashka_ura_2.jpg',  t:'Умница!'  },
+  s2: { i:'natasha_ura.jpg',       t:'Здорово!' },
+  s3: { i:'balovashka_ura_2.jpg',  t:'Молодец!' }
+};
+function heroReward(id, hideTask){
+  var r = REW[id]; if(!r) return;
+  var host = document.querySelector('.screen.on'); if(!host) return;
+  var old = host.querySelector('.heroReward'); if(old) old.remove();
+  var pic = host.querySelector('.taskpic'); if(pic) pic.style.display = 'none';
+  if(hideTask !== false){
+    var gb = host.querySelector('#gridBox'); if(gb) gb.style.display = 'none';
+    var qq = host.querySelector('#q1Q, #q2Q'); if(qq) qq.style.display = 'none';
+  }
+  var d = document.createElement('div');
+  d.className = 'heroReward';
+  d.innerHTML = picture(r.i) + (r.t ? '<div class="hrtext">' + r.t + '</div>' : '');
+  host.appendChild(d);
+}
+function show(id){
+  hush();
+  [].slice.call(document.querySelectorAll('.screen')).forEach(function(s){ s.classList.remove('on'); });
+  [].slice.call(document.querySelectorAll('.heroReward')).forEach(function(x){ x.remove(); });
+  q(id).classList.add('on');
+  q('foot').innerHTML = '';
+  if(VIDEO_SHOW[id]) playVideo(VIDEO_SHOW[id]);
+  if(ONSHOW[id]) ONSHOW[id]();
+  if(PREF_VID[id]) setTimeout(function(){ prefV(PREF_VID[id]); }, 700);
+  var key = SCREEN_SAY[id];
+  if(key) play(key);
+}
+function go(id){ show(id); }
+function restart(){ show('s0'); }
+var ONSHOW = {};
+
+/* ── разблокировка звука на телефоне: первый тап ── */
+['pointerdown','touchstart','click'].forEach(function(ev){
+  document.addEventListener(ev, function(){
+    if(unlocked) return; unlocked = true;
+    try{
+      if(!curAudio){ curAudio = new Audio(); curAudio.preload = 'auto'; }
+      curAudio.src = 'sounds/nothing.mp3';   /* играем на ТОМ ЖЕ элементе — телефон его разблокирует навсегда */
+      curAudio.play().catch(function(){});
+    }catch(e){}
+  }, true);
+});
+
+loadImgList(['poster_logo.jpg','poster_nachalo.jpg','poster_itog.jpg',
+  'avtobus.jpg','samolyot_letit.jpg','poezd.jpg','voditel.jpg','voditel_avtobus.jpg','pilot.jpg',
+  'mashinist.jpg','kapitan.jpg',
+  'mashina_edet.jpg','velosiped.jpg','vertolyot.jpg','yahta.jpg','tramvay.jpg',
+  'korabl.jpg','samokat.jpg',
+  'velosiped_kr.jpg','velik1.jpg','velik_kr.jpg','velik_kra.jpg','velik_cherny.jpg',
+  'samolyot.jpg','samolyot_nebo.jpg','samolyot_vint.jpg',
+  'lodka.jpg','lodka2.jpg','lodka3.jpg','lodka4.jpg','lodka5.jpg',
+  'avto2.jpg','mashina.jpg','taksi.jpg','gruzovik.jpg','skuter.jpg','trolleybus.jpg',
+  'avto_bel.jpg','avto_krasn.jpg','avto_ryzh.jpg','avto_ser.jpg',
+  'natasha_ura.jpg','balovashka_ura_2.jpg','balovashka_dumaet.jpg']);
+
+/* титул: один тап запускает ролик, повторные НЕ перезапускают, страховка «Продолжить» */
+function playStart(){
+  hush();                                  /* название/прошлый звук не накладывается на видео */
+  var v = q('vidnach');
+  if(v && v.dataset.started === '1' && !v.paused) return;
+  if(v) v.dataset.started = '1';
+  playVideo('vidnach');
+  footNext(NEXT.s0, 'Продолжить ➡');
+}
+q('vidnach').addEventListener('ended', function(){ if(q('s0').classList.contains('on')) show(NEXT.s0); });
+setTimeout(function(){ if(q('s0').classList.contains('on')) footNext(NEXT.s0, 'Продолжить ➡'); }, 8000);
+
+/* ── ИГРА 1. КТО УПРАВЛЯЕТ ──────────────────────────────────────── */
+var q1Idx = 0, q1Err = 0, q1Lock = false;
+ONSHOW['s1'] = function(){ q1Idx = 0; q1Err = 0; q1Lock = false; drawQ1(); };
+function drawQ1(){
+  var cur = Q1[q1Idx];
+  var host = q('s1');
+  var old = host.querySelector('.heroReward'); if(old) old.remove();
+  q('q1Pic').style.display = '';
+  q('q1Q').style.display = '';
+  q('hint1').textContent = '';
+  q('fb1').innerHTML = '';
+  q('cntQ1').textContent = 'Вопрос ' + (q1Idx+1) + ' из ' + Q1.length;
+  q('q1Pic').innerHTML = picture(cur.i);
+  q('q1Q').textContent = cur.q;
+  var row = q('q1Opts'); row.innerHTML = '';
+  shuffle(Q1_OPTS.map(function(o, k){ return k; })).forEach(function(k){
+    var o = Q1_OPTS[k];
+    var b = document.createElement('button');
+    b.className = 'optbtn';
+    b.innerHTML = picture(o.i) + '<div class="word">' + paint(o.t) + '</div>';
+    b.setAttribute('data-act','q1Pick(el,' + k + ')');
+    row.appendChild(b);
+  });
+  q1Lock = false;
+  sayQ(cur.qa, 800);                        /* вопрос раунда голосом — после того как ребёнок увидел картинку */
+}
+function q1Pick(el, k){
+  if(q1Lock) return;
+  var cur = Q1[q1Idx];
+  if(k === cur.a){
+    q1Lock = true; q1Err = 0;
+    el.classList.add('done');
+    [].slice.call(q('q1Opts').querySelectorAll('.optbtn')).forEach(function(b){ b.removeAttribute('data-act'); });
+    heroReward('s1');                          /* Баловашка радуется сразу */
+    play(cur.ok, function(){                   /* ответ договорил → пауза → только потом следующий раунд */
+      setTimeout(function(){
+        if(q1Idx < Q1.length-1){ q1Idx++; drawQ1(); }
+        else { footNext(NEXT.s1, 'Дальше ➡'); }
+      }, 800);
+    }, true);                                  /* вопрос раунда НЕ обрывается — ждём его конца */
+  } else {
+    el.classList.add('shake');
+    setTimeout(function(){ el.classList.remove('shake'); }, 500);
+    play('ne_tochno');
+    q('hint1').textContent = 'Яша: «Подумай ещё!»';
+    if(++q1Err >= 3) giveSkip('s1');
+  }
+}
+
+/* ── ИГРА 2. КТО НА ЧЁМ ЕЗДИТ ───────────────────────────────────── */
+var q2Idx = 0, q2Err = 0, q2Lock = false;
+ONSHOW['s2'] = function(){ q2Idx = 0; q2Err = 0; q2Lock = false; drawQ2(); };
+function drawQ2(){
+  var cur = Q2[q2Idx];
+  var host = q('s2');
+  var old = host.querySelector('.heroReward'); if(old) old.remove();
+  q('q2Pic').style.display = '';
+  q('q2Q').style.display = '';
+  q('hint2').textContent = '';
+  q('fb2').innerHTML = '';
+  q('cntQ2').textContent = 'Вопрос ' + (q2Idx+1) + ' из ' + Q2.length;
+  q('q2Pic').innerHTML = picture(cur.p);
+  q('q2Q').textContent = cur.q;
+  var row = q('q2Opts'); row.innerHTML = '';
+  shuffle(cur.opts).forEach(function(o){
+    var b = document.createElement('button');
+    b.className = 'optbtn';
+    b.innerHTML = picture(o.i) + '<div class="word">' + paint(o.t) + '</div>';
+    b.setAttribute('data-act','q2Pick(el,"' + o.i + '")');
+    row.appendChild(b);
+  });
+  q2Lock = false;
+  sayQ(cur.qa, 800);                        /* вопрос раунда голосом — после того как ребёнок увидел картинку */
+}
+function q2Pick(el, key){
+  if(q2Lock) return;
+  var cur = Q2[q2Idx];
+  if(key === cur.a){
+    q2Lock = true; q2Err = 0;
+    el.classList.add('done');
+    [].slice.call(q('q2Opts').querySelectorAll('.optbtn')).forEach(function(b){ b.removeAttribute('data-act'); });
+    heroReward('s2');                          /* эмоция сразу */
+    play(cur.ok, function(){                   /* ответ договорил → пауза → только потом следующий раунд */
+      setTimeout(function(){
+        if(q2Idx < Q2.length-1){ q2Idx++; drawQ2(); }
+        else { footNext(NEXT.s2, 'Дальше ➡'); }
+      }, 800);
+    }, true);                                  /* вопрос раунда НЕ обрывается — ждём его конца */
+  } else {
+    el.classList.add('shake');
+    setTimeout(function(){ el.classList.remove('shake'); }, 500);
+    play('ne_tochno');
+    q('hint2').textContent = 'Яша: «Подумай ещё!»';
+    if(++q2Err >= 3) giveSkip('s2');
+  }
+}
+
+/* ── ИГРА 3. ПОЛЕ 4×4: ВЕЛОСИПЕДЫ → САМОЛЁТЫ ──────────────────── */
+var grCells = [], grCnt = 0, grErr = 0, grPhase = 0, grLock = false, grFbT = null;
+function gridHappy(){
+  clearTimeout(grFbT);
+  var f = q('fb3');
+  f.setAttribute('data-happy','1');
+  f.innerHTML = '<img class="think" src="images/balovashka_ura_2.jpg">';
+  grFbT = setTimeout(function(){
+    var el = q('fb3');
+    if(el && el.getAttribute('data-happy')){ el.innerHTML = ''; el.removeAttribute('data-happy'); }
+  }, 1000);
+}
+function viewFit(){
+  try{
+    var vv = window.visualViewport;
+    var wi = window.innerWidth || 800;
+    var W = Math.min((vv && vv.width) || 1e9, wi, (window.screen && screen.width) || 1e9);
+    if(W < wi - 8){
+      document.documentElement.style.maxWidth = Math.round(W) + 'px';
+      document.documentElement.style.margin = '0 auto';
+    }
+  }catch(e){}
+}
+ONSHOW['s3'] = function(){ grPhase = 0; grErr = 0; drawGrid(); };
+function drawGrid(){
+  var ph = G_PHASES[grPhase];
+  var total = G_N * G_N;
+  var imgs = [];
+  for(var i = 0; i < ph.need; i++) imgs.push(ph.targets[i % ph.targets.length]);
+  var pool = shuffle(ph.pool);
+  var k = 0;
+  while(imgs.length < total){
+    imgs.push(pool[k % pool.length]);
+    k++;
+    if(k % pool.length === 0) pool = shuffle(pool);
+  }
+  imgs = shuffle(imgs);
+  /* убрать одинаковые картинки, стоящие рядом (в строке или столбце) */
+  for(var pass = 0; pass < 250; pass++){
+    var bad = -1, bj = -1, n = G_N;
+    for(var j = 0; j < total; j++){
+      if(j % n !== n - 1 && imgs[j] === imgs[j+1]){ bad = j; bj = j + 1; break; }
+      if(j + n < total && imgs[j] === imgs[j+n]){ bad = j; bj = j + n; break; }
+    }
+    if(bad < 0) break;
+    for(var t = 0; t < 80; t++){
+      var r = Math.floor(Math.random() * total);
+      if(r !== bj && imgs[r] !== imgs[bj]){ var tmp = imgs[bj]; imgs[bj] = imgs[r]; imgs[r] = tmp; break; }
+    }
+  }
+  grCells = imgs; grCnt = 0; grErr = 0; grLock = false;
+  var box = q('gridBox');
+  box.style.setProperty('--n', G_N);
+  box.style.display = '';
+  viewFit();
+  box.innerHTML = '';
+  imgs.forEach(function(f, kk){
+    var d = document.createElement('div');
+    d.className = 'cell';
+    d.innerHTML = '<img src="images/' + f + '" alt="">';
+    d.setAttribute('data-act','gridPick(el,' + kk + ')');
+    box.appendChild(d);
+  });
+  q('gridSub').textContent = ph.sub;
+  q('cntFind').textContent = 'Найдено: 0 из ' + ph.need;
+  clearTimeout(grFbT);
+  q('fb3').removeAttribute('data-happy');
+  q('fb3').innerHTML = '';
+  sayQ(ph.say, 800);                        /* задание этапа голосом — после того как поле на экране */
+  var host = q('s3');
+  var old = host.querySelector('.heroReward'); if(old) old.remove();
+}
+if(window.visualViewport){ try{ window.visualViewport.addEventListener('resize', viewFit); }catch(e){} }
+window.addEventListener('resize', viewFit);
+viewFit();
+function gridPick(el, k){
+  if(grLock) return;
+  var ph = G_PHASES[grPhase];
+  if(el.classList.contains('done')){
+    el.classList.add('shake');                 /* уже нашли — мягко покачаем */
+    setTimeout(function(){ el.classList.remove('shake'); }, 500);
+    return;
+  }
+  if(ph.targets.indexOf(grCells[k]) > -1){
+    el.classList.add('done'); grCnt++; grErr = 0;
+    q('cntFind').textContent = 'Найдено: ' + grCnt + ' из ' + ph.need;
+    if(grCnt >= ph.need){
+      grLock = true;
+      clearTimeout(grFbT);
+      q('fb3').removeAttribute('data-happy');
+      q('fb3').textContent = 'Все ' + ph.name + ' найдены!';
+      if(grPhase < G_PHASES.length - 1){
+        praise(function(){                     /* похвала договорила → пауза → только потом новый этап */
+          setTimeout(function(){ grPhase++; drawGrid(); }, 900);
+        });
+      } else {
+        heroReward('s3');
+        praise(function(){
+          setTimeout(function(){ footNext(NEXT.s3, 'Дальше ➡'); }, 900);
+        });
+      }
+    } else {
+      gridHappy();                              /* Баловашка радуется — после каждого верного */
+    }
+  } else {
+    clearTimeout(grFbT);
+    q('fb3').removeAttribute('data-happy');
+    el.classList.add('shake');
+    setTimeout(function(){ el.classList.remove('shake'); }, 500);
+    play('ne_tochno');
+    q('fb3').innerHTML = '<img class="think" src="images/balovashka_dumaet.jpg">' + 'Это не ' + ph.name + '. Ищи внимательнее!';
+    if(++grErr >= 3) giveSkip('s3');
+  }
+}
+
+/* ── клики: всё на касание (pointerdown), как требует чек-лист ── */
+document.addEventListener('pointerdown', function(e){
+  var el = e.target.closest ? e.target.closest('[data-act]') : null;
+  if(!el) return;
+  e.preventDefault();
+  var code = el.getAttribute('data-act');
+  try{ (new Function('var el=arguments[0];' + code))(el); }catch(err){}
+}, false);
+
+show('s0');
+</script>
+</body>
+</html>
